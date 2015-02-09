@@ -1,12 +1,13 @@
-type III secretion system protein SpaO [Salmonella enterica]
-DESCRIPTION
+type III secretion system protein SpaS [Salmonella enterica]
+SpaS is a protein for the type III secretion found in certain bacteria, including Salmonella. The secretion system is a protein appendage that has a needle-like structure and is used as a probe to detect the presence of eukaryotic organism and then infect them. 
 
-antigen presentation protein SpaN [Salmonella enterica]
-DESCRIPTION
+antigen presentation protein SpaN [Salmonella enterica]:
+Antigen presentation protein SpaN is a protein for the Salmonella enterica organism. The sequence was derived from an EMBL/GenBank/DDBJ whole genome shotgun (WGS) entry. 
 
 ATP synthase SpaL [Salmonella enterica]
-DESCRIPTION
+As an ATP synthase, SpaL is for ATP binding, specifically for ATP + H2O = ADP + phosphate + 2 H+. 
 
-type III secretion system protein SpaS [Salmonella enterica]
-DESCRIPTION
+type III secretion system protein SpaO [Salmonella enterica]:
+SpaO is another protein used in the Type III secretion system, as described above. SpaO specifically is for the outer membrane of the system. 
+
 
