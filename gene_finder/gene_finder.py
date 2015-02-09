@@ -10,6 +10,7 @@ Created on Sun Feb  2 11:24:42 2014
 from amino_acids import aa, codons, aa_table
 import random
 from load import load_seq
+dna = load_seq("./data/X73525.fa")
 
 def shuffle_string(s):
     """ Shuffles the characters in the input string
@@ -75,12 +76,11 @@ def rest_of_ORF(dna):
     """
     stop_codons = ["TAG", "TAA", "TGA"] 
     rorf = "" 
-    for x in range(0,len(dna)):
-        if x %3 == 0:
-            if dna[x:x+3] in stop_codons:
-                return rorf
-        rorf += dna[x] 
-    return rorf
+    for i in range(0, len(dna), 3):
+        codon = dna[i:i+3]
+        if codon in stop_codons:
+            return dna[0:i]
+    return dna
 
 def find_all_ORFs_oneframe(dna):
     """ Finds all non-nested open reading frames in the given DNA sequence and returns
@@ -93,34 +93,18 @@ def find_all_ORFs_oneframe(dna):
         returns: a list of non-nested ORFs
     >>> find_all_ORFs_oneframe("ATGCATGAATGTAGATAGATGTGCCC")
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
-"""
-    rorf = ''
-    started = False
-    ALLORFS = []
+    """
+    allorf = []
     startcodon = 'ATG'
-    stop_codons = 'TAG', 'TAA', 'TGA'
-    for x in range(0,len(dna)-2,3):
-        if dna[x:x+3] in startcodon:
-            started = True
-            rorf += dna[x:x+3]
-            #print "startcodon line: ", rorf
-        elif (dna[x:x+3] in stop_codons) and started:
-           # print "stopcodon line: ", rorf
-            ALLORFS.append(rorf)
-            rorf = ''
-            started = False
-        elif started:
-            rorf += dna[x:x+3]
+    x = 0
+    while x < len(dna):
+        codon = dna[x:x+3]
+        if codon == startcodon:
+            allorf.append(rest_of_ORF(dna[x:]))
+            x += len(rest_of_ORF(dna[x:]))
         else:
-            pass
-        #print "print continuous: ", rorf
-    if rorf == '':
-        pass
-    else:
-        ALLORFS.append(rorf)
-    
-    return ALLORFS
-
+            x+=3
+    return allorf
 
 def find_all_ORFs(dna):
     """ Finds all non-nested open reading frames in the given DNA sequence in all 3
@@ -136,7 +120,7 @@ def find_all_ORFs(dna):
     """
     orfallframes = []
     for i in range(3):
-        orfallframes += find_all_ORFs_oneframe(dna[i:])
+        orfallframes.extend(find_all_ORFs_oneframe(dna[i:]))
 #        for x in range(i, len(dna), 3):
 #            if dna[x:x+3] == 'ATG': 
 #                orfallframes += find_all_ORFs_oneframe(dna[x:])
@@ -164,7 +148,7 @@ def longest_ORF(dna):
     bothstrands = find_all_ORFs_both_strands(dna)
     longest = 0
     for x in range(len(bothstrands)):
-        if len(bothstrands[x])>  len(bothstrands[x-1]) and len(bothstrands[x])> longest:
+        if len(bothstrands[x])>  longest: #len(bothstrands[x-1]) and len(bothstrands[x])> longest:
             longest =  len(bothstrands[x])
             longest_elim = x
     return bothstrands[longest_elim]
@@ -176,27 +160,34 @@ def longest_ORF_noncoding(dna, num_trials):
         dna: a DNA sequence
         num_trials: the number of random shuffles
         returns: the maximum length longest ORF """
-    # TODO: implement this
-    shuffledstring = []
-    filtlist = []
-    totallist = []
- #   mini = []
-    count =0
-    for x in range(num_trials-1): 
-        dnalist = list(dna)
-        #count += 1
-        random.shuffle(dnalist)
-        shuffledstring = "".join(dnalist)
-        totallist.append(shuffledstring)
-        filtlist.append(find_all_ORFs_both_strands(totallist[x])) 
-        print filtlist
-        if filtlist[x]:
-            mini = filtlist[x][0]
-            if len(mini) > count:
-                count = len(mini)
-        else:
-            pass
-    return count
+
+    longlength = 0
+    for x in range(num_trials):
+        shufdna = shuffle_string(dna)
+        if len(longest_ORF(shufdna)) > longlength:
+            longlength = len(longest_ORF(shufdna))
+    return longlength
+
+
+    # shuffledstring = []
+    # filtlist = []
+    # totallist = []
+    # count =0
+    # for x in range(num_trials-1): 
+    #     dnalist = list(dna)
+    #     #count += 1
+    #     random.shuffle(dnalist)
+    #     shuffledstring = "".join(dnalist)
+    #     totallist.append(shuffledstring)
+    #     filtlist.append(find_all_ORFs_both_strands(totallist[x])) 
+    #     print filtlist
+    #     if filtlist[x]:
+    #         mini = filtlist[x][0]
+    #         if len(mini) > count:
+    #             count = len(mini)
+    #     else:
+    #         pass
+    # return count
 
 def coding_strand_to_AA(dna):
     """ Computes the Protein encoded by a sequence of DNA.  This function
@@ -212,18 +203,41 @@ def coding_strand_to_AA(dna):
         >>> coding_strand_to_AA("ATGCCCGCTTT")
         'MPA'
     """
-    # TODO: implement this
-    pass
+    code = []
+    translated = ''
+    for i in range(0,len(dna)-2,3):
+        my_codon = dna[i:i+3]
+        for j in range(len(codons)):
+            if my_codon in codons[j]:
+                translated += aa[j]
+    return translated
 
 def gene_finder(dna):
-    """ Returns the amino acid sequences that are likely coded by the specified dna
-        
-        dna: a DNA sequence
-        returns: a list of all amino acid sequences coded by the sequence dna.
+    """ Returns the amino acid sequences coded by all genes that have an ORF
+        larger than the specified dna        
+        threshold: a DNA sequence
+        threshold: the minimum length of the ORF for it to be considered a valid
+                   gene.
+        returns: a list of all amino acid sequences whose ORFs meet the minimum
+                 length specified.
     """
-    # TODO: implement this
-    #threshold = longest_ORF_noncoding(dna, 1500
-    pass
+    """
+    translate any code that comes out of orf both sides that is at the
+    threshold
+    """
+    translated_orfs = []
+    threshold = longest_ORF_noncoding(dna, 1500)
+    print threshold
+    dna_orfs = find_all_ORFs_both_strands(dna) 
+    #print 'dna_orfs', dna_orfs 
+    for x in range(len(dna_orfs)):
+        if len(dna_orfs[x]) >= threshold:
+            translated_orfs.append(coding_strand_to_AA(dna_orfs[x]))
+    # print 'translated:', translated_orfs
+    return translated_orfs
+
+print gene_finder(dna)
+
 
 if __name__ == "__main__":
     import doctest
