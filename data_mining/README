@@ -1,0 +1,5 @@
+README:
+In order to run philosophywikipedia.py, you need to install both Pattern and BeautifulSoup for Python. 
+Graphingwikipedia.py uploads straight to lisa.joelle.hachmann's account and should open a tab in your existing or default broswer. 
+The two files are linked in that the results of multiple words in philosophywikipedia can be put in the graphingwikipedia's x and y (words as X, values as Y) in order to create the bar graph. 
+Happy Philosophy Game! 
