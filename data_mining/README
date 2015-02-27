@@ -1,11 +1,11 @@
 README:
 In order to run philosophywikipedia.py, you need to install both Pattern and BeautifulSoup for Python. 
-this is best done with the lines:
+this is best done with the lines in your (ubuntu/linux) terminal:
 (sudo) pip install pattern
 and 
 (sudo) pip install beautifulsoup4
 
-In order to run graphingwikipedia.py, you need to install Plotly, a new version of matplotlib. This is best done with the line:
+In order to run graphingwikipedia.py, you need to install Plotly, a new version of matplotlib. This is best done with the line (in your ubuntu/linux) terminal:
 (sudo) pip install plotly
 
 Graphingwikipedia.py uploads straight to lisa.joelle.hachmann's account and should open a tab in your existing or default broswer. 
