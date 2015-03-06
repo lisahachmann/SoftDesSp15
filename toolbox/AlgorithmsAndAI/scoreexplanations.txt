@@ -1,0 +1,7 @@
+Score explanations
+
+G_Score is how far away (in tiles) from the original position the currently evaluated position is.
+
+H_score is the estimate of how many more tiles it takes to get to the end of the path, without regard to if you can walk through those tiles or not. There are a couple different versions used: pythagorian theorem and Manhattan city block style. 
+ 
+F_Score is the sum of these two, effectively the one which has the path shortest for the user. 

@@ -1,13 +1,11 @@
 import pygame
 from math import sqrt
-#http://www.raywenderlich.com/4946/introduction-to-a-pathfinding
-
 class GridWorld():
     """Grid world that contains animals living in cells."""
     def __init__(self,width=10,height=10,cell_size=50):
         pygame.init()
         self.screen = pygame.display.set_mode((height*cell_size,width*cell_size))
-        pygame.display.set_caption = ('Grid World')
+        pygame.display.set_caption = ('Paul World')
         self.actors = {}
         self.width = width
         self.height = height
@@ -56,21 +54,32 @@ class GridWorld():
         except:
             return False
 
-    def _add_lava(self, mouse_pos):
-        lava_coord = (mouse_pos[0]/50, mouse_pos[1]/50)
-        if self._is_occupied(lava_coord):
-            if self.actors[lava_coord].unremovable == False:
-                self.actors.pop(lava_coord, None)
-        else:
-            self.actors[lava_coord] = Actor( lava_coord, self, './images/lava.jpg' )
     def _add_swamp(self, mouse_pos):
         swamp_coord = (mouse_pos[0]/50, mouse_pos[1]/50)
         if self._is_occupied(swamp_coord) :
             if self.actors[swamp_coord].unremovable == False:
                 self.actors.pop(swamp_coord, None)
         else:
-            self.actors[swamp_coord]= Actor (swamp_coord, self, './images/swamp.jpg')
+            self.actors[swamp_coord]= ObstacleTile(swamp_coord, self, './images/swamp.jpg', is_unpassable = False, terrain_cost = 3)
             
+
+    def _add_lava(self, mouse_pos):
+        lava_coord = (mouse_pos[0]/50, mouse_pos[1]/50)
+        if self._is_occupied(lava_coord):
+            if self.actors[lava_coord].unremovable == False:
+                self.actors.pop(lava_coord, None)
+        else:
+            self.actors[lava_coord] = ObstacleTile( lava_coord, self, './images/lava.jpg', is_unpassable = True, terrain_cost = 0)
+
+    def get_terrain_cost(self, cell_coord):
+        try:
+            actor = self.actors[cell_coord]
+            if actor.terrain_cost is not None:
+                return actor.terrain_cost
+            else:
+                return 0
+        except:
+            return 0
 
     def main_loop(self):
         running = True
@@ -117,6 +126,11 @@ class Actor(object):
         screen = self.world.screen
         screen.blit(self.image,self.image_rect)
 
+class ObstacleTile(Actor):
+    def __init__(self, cell_coordinates, world, image_loc, terrain_cost=3, is_unpassable = True):
+        super(ObstacleTile, self).__init__(cell_coordinates, world, image_loc, unremovable = False, is_obstacle = is_unpassable)
+        self.terrain_cost = terrain_cost
+        
 class Cell():
     def __init__(self, draw_screen, coordinates, dimensions):
         self.draw_screen = draw_screen
@@ -134,9 +148,9 @@ class Cell():
 
     def draw(self):
         COST_TO_DRAW = ''
-        #COST_TO_DRAW = self.g_cost
+        COST_TO_DRAW = self.g_cost
         #COST_TO_DRAW = self.h_cost
-        COST_TO_DRAW = self.f_cost
+        #COST_TO_DRAW = self.f_cost
         line_width = 2
         rect = pygame.Rect((self.coordinates[0],self.coordinates[1]),(self.dimensions[0],self.dimensions[1]))
         pygame.draw.rect(self.draw_screen, self.color, rect, line_width)
@@ -157,9 +171,12 @@ class Paul(Actor):
 
     def get_open_adj_coords(self, coords):
         """returns list of valid coords that are adjacent to the argument, open, and not in the closed list."""
+        #modify directions and costs as needed
         directions = [(1,0),(0,1),(-1,0),(0,-1), (1,1), (1,-1), (-1,-1), (-1,1), (2,0), (0,2), (0, -2), (-2, 0)]
         costs = [1,1,1,1, 3, 3, 3, 3, 8,8,8,8]
         adj_coords = map(lambda d: self.world._add_coords(coords,d), directions)
+        for i, coord in enumerate(adj_coords):
+            costs[i] += self.world.get_terrain_cost(coord)
         in_bounds = [self.world._is_in_grid(c) and not self.world._is_occupied(c) and c not in self.closed_list for c in adj_coords]
         adj_coords = [c for (idx,c) in enumerate(adj_coords) if in_bounds[idx]]
         costs = [c for (idx,c) in enumerate(costs) if in_bounds[idx]]
@@ -174,7 +191,7 @@ class Paul(Actor):
     def reset_cell_values(self):
         self.destination_coord = None
         for cell in self.cells.values():
-            cell.color = (50,50,50)
+            cell.color = (0,0,0)
             cell.parents_coords = None
             cell.g_cost = None
             cell.h_cost = None
@@ -188,10 +205,10 @@ class Paul(Actor):
                 coord_list.append(self.cells[coord_list[-1]].parents_coords)
             except:
                 print 'No path found to destination coord!'
-                for
-        break coord in coord_list:
+                break
+        for coord in coord_list:
             if coord is not None:
-                self.cells[coord].color = (10,200,0)
+                self.cells[coord].color = (0,255,0)
         return coord_list
 
     def run_astar(self, destination_coord, world):
@@ -206,7 +223,6 @@ class Paul(Actor):
         cell_s.g_cost = 0
         cell_s.h_cost = self.get_h_cost(coord_s, destination_coord)
         self.open_list = [coord_s]
-#probably loop here
         while len(self.open_list) > 0:
             coord_s = self.get_lowest_cost_open_coord()
             cell_s = self.cells[coord_s]
@@ -215,7 +231,7 @@ class Paul(Actor):
             walkable_open_coords, costs = self.get_open_adj_coords(coord_s)
             for idx,coord in enumerate(walkable_open_coords):
                 cell = self.cells[coord]
-                g_cost = cell_s.g_cost + costs[idx] #g cost is going to be one larger than the previous adjacent square's g cost
+                g_cost = cell_s.g_cost + costs[idx] 
                 h_cost = self.get_h_cost(coord, destination_coord)
                 f_cost = g_cost + h_cost
                 if coord in self.open_list:
