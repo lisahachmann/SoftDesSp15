@@ -56,4 +56,3 @@ def find_stop_near(place_name):
     distance from the given place to that stop.
     """
     pass
-
