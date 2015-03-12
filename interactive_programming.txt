@@ -1,0 +1,4 @@
+Interactive Programming Project:
+Brick Breaker by Lisa Hachmann and Maggie Jakus located at:
+https://github.com/lisahachmann/BrickPythonGame
+Please refer to README. 
