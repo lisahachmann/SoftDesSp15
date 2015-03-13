@@ -38,18 +38,18 @@ def update_counter(file_name, reset=False):
 		return counter
 	else: 
 		if exists(file_name):
-			f =open(file_name, 'rw')
+			f =open(file_name, 'w')
 			counter = pickle.load(f)
 			counter += 1
-			pickle.dump(counter, open(file_name, 'w'))
-			return counter
+			pickle.dump(counter, f)
 			f.close()
+			return counter
 		else: 
 			fi = open(file_name, "w")
 			counter = 1
 			pickle.dump(counter, fi)
-			return counter
 			fi.close()
+			return counter
 # print update_counter('blah.txt', True)
 # print update_counter('blah.txt')
 # print update_counter('blah2.txt', True)
