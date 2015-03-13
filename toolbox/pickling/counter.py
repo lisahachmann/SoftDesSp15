@@ -38,10 +38,10 @@ def update_counter(file_name, reset=False):
 		return counter
 	else: 
 		if exists(file_name):
-			f =open(file_name, 'w')
+			f =open(file_name, 'rw')
 			counter = pickle.load(f)
 			counter += 1
-			pickle.dump(counter, f)
+			pickle.dump(counter, open(file_name, 'w'))
 			f.close()
 			return counter
 		else: 
