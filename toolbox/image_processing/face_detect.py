@@ -12,8 +12,11 @@ while (True):
     for (x,y,w,h) in faces:
         frame[y:y+h, x:x+w,:] = cv2.dilate(frame[y:y+h, x:x+w, :], kernel)
         for face in frame:
-            cv2.ellipse(frame, ((y+h), (x+w+60)/2), (50, 25), 180,0,180, 255, 12)
-            cv2.circle(frame, ((x+h)/2,(y+w)/2), 7, 200, 20)
+            cv2.ellipse(frame, (((x+w)/2)+150, ((y+h)/2)+150), (75, 50),205,0,120, 0, 12)
+            cv2.circle(frame, ((x+h+350)/2,(y+w)/2), 7, (255,255,255), 20)
+            cv2.circle(frame, ((x+h+150)/2,(y+w)/2), 7, (255,255,255), 20)
+            cv2.circle(frame, ((x+h+350)/2,(y+w+10)/2), 1, (0,0,0), 13)
+            cv2.circle(frame, ((x+h+150)/2,(y+w+10)/2), 1, (0,0,0), 13)
     cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
