@@ -2,18 +2,20 @@
 
 import cv2
 import numpy as np
-
-cap = cv2.VideoCapture('time_lapse_2D.mov')
-
+face_cascade = cv2.CascadeClassifier('/home/li/Documents/Softdes/toolboxes/haarcascade_frontalface_alt.xml')
+kernel = np.ones((21,21),'uint8')
+cap = cv2.VideoCapture(0)
 while (True):
-	#Capture, frame by frame
-	ret, frame = cap.read()
-	#Operations on the frame
-	#Making it gray
-	gray = cv2. cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	#Display the resulting frame
-	cv2.imshow('frame', gray)
-	if cv2.waitKey(1) & 0xFF == ord('q'):
-		break
+    #Capture, frame by frame
+    ret, frame = cap.read()
+    faces = face_cascade.detectMultiScale(frame, scaleFactor=1.2, minSize=(20,20))
+    for (x,y,w,h) in faces:
+        frame[y:y+h, x:x+w,:] = cv2.dilate(frame[y:y+h, x:x+w, :], kernel)
+        for face in frame:
+            cv2.ellipse(frame, ((y+h), (x+w+60)/2), (50, 25), 180,0,180, 255, 12)
+            cv2.circle(frame, ((x+h)/2,(y+w)/2), 7, 200, 20)
+    cv2.imshow('frame',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 cap.release()
 cv2.destroyAllWindows()
