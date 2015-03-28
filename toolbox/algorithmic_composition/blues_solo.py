@@ -2,7 +2,8 @@
 
 from Nsound import *
 import numpy as np
-from random import choice
+#from random import choice
+import random
 
 def add_note(out, instr, key_num, duration, bpm, volume):
     """ Adds a note from the given instrument to the specified stream
@@ -28,24 +29,23 @@ beats_per_minute = 45               # Let's make a slow blues solo
 bass = GuitarBass(sampling_rate)	# use a guitar bass as the instrument
 solo = AudioStream(sampling_rate, 1)
 curr_note = 0
-add_note(solo, bass, blues_scale[curr_note], 1.0, beats_per_minute, 1.0)
+#add_note(solo, bass, blues_scale[curr_note], 1.0, beats_per_minute, 1.0)
 
-licks = [ [ [1,0.5], [1,0.5], [1, 0.5], [1, 0.5], [-1, 0.5], [-1, 0.5], [-1, 0.5], [-1, 0.5] ] ]
+licks = [ [[1,0.5], [1,0.5], [1, 0.5], [1, 0.5]],
+          [[-1, 0.5], [-1, 0.5], [-1, 0.5], [-1, 0.5]],
+          [[-1, 0.25], [-1, 0.25], [-1, 0.25], [-1, 0.25],[-1, 0.25], [-1, 0.25], [-1, 0.25], [-1, 0.25]],
+          [[1,0.125], [1,0.125], [1, 0.125], [1, 0.125],[1,0.125], [1,0.125], [1, 0.125], [1, 0.125]]]
 
 for i in range(4):
-    lick = licks[0]
-    for note in lick:
-        curr_note += note[0]
+    lick = random.choice(licks)
+    print lick
+    for note,dur in lick:
+
         if curr_note< 0:
             curr_note = abs(curr_note)
         if curr_note >= (len(blues_scale) -1):
             curr_note = len(blues_scale) - 1
-        add_note(solo, bass, blues_scale[curr_note], note[1], beats_per_minute, 1.0)
-
-#""" these are the piano key numbers for a 3 octave blues scale in A
-#	See: http://en.wikipedia.org/wiki/Blues_scale """
-
-
-#add_note(solo, bass, blues_scale[0], 5.0, beats_per_minute, 15.0)
+        curr_note += note
+        add_note(solo, bass, blues_scale[int(curr_note)], dur, beats_per_minute, 1.0)
 
 solo >> "blues_solo.wav"
