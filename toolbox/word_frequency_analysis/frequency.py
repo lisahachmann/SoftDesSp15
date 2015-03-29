@@ -62,5 +62,6 @@ def get_top_n_words(word_list, n):
     return pop_words
 #uncomment to just test this function
 #print get_word_list("mobydick.txt")
+
 #second function, using the first
 print get_top_n_words(get_word_list("mobydick.txt"), 50)
